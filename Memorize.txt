@@ -1,0 +1,24 @@
+// create a file or open a file
+Syntax: open(filename, flags, permissions);
+Ex: fd = open(name, O_CREAT | O_RDWR, 0777);
+
+other imp flags:
+O_RDONLY
+
+Ex: fd = open("a.txt", O_RDONLY);
+
+// reading a file, 
+Syntax: read(fd, buffer, size);
+buffer->where data should be stored
+size->how many bytes to read
+
+Ex: read(fd, data, sizeof(data));
+
+//Close the opened file
+Syntax & Ex: close(fd);
+
+//Unlink()->Used to delete a file
+Syntax: unlink(filename);
+Ex: unlink("a.txt");
+
+
