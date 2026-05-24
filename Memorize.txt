@@ -20,5 +20,23 @@ Syntax & Ex: close(fd);
 //Unlink()->Used to delete a file
 Syntax: unlink(filename);
 Ex: unlink("a.txt");
+//Equivalent Linux command:
+rm a.txt
+
+// mkdir()
+Syntax: mkdir(dirname, permissions);
+Ex: mkdir("test", 0777);
+//Equivalent Linux command:
+mkdir test
+
+// rmdir()
+Syntax: rmdir(dirname);
+Ex: rmdir("test");
+//Equivalent Linux command:
+rmdir test
+
+
+
+
 
 
