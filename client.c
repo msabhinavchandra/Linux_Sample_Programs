@@ -4,7 +4,7 @@
 #include <string.h>
 #include <unistd.h> 
 int main() {
-    int s;
+    int s;// for socket file descriptor
     struct sockaddr_un srv, cli;
     char buf[2] = "hi";
     s = socket(AF_UNIX, SOCK_DGRAM, 0);

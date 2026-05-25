@@ -35,6 +35,255 @@ Ex: rmdir("test");
 //Equivalent Linux command:
 rmdir test
 
+socket program headers/impt things
+#include <sys/socket.h>// for socket programming, including socket(), 
+#include <sys/un.h>// for sockaddr_un structure, which is used for 
+#include <string.h>// for strcpy() and strlen() functions
+#include <unistd.h>/
+
+client specific
+int s;// for socket file descriptor
+struct sockaddr_un srv, cli;
+sendto(s, buf, 2, 0, (struct sockaddr*)&srv, sizeof(srv));
+recvfrom(s, buf, 2, 0, 0, 0);
+/tmp/c and s
+
+socket(domain, type, protocol);// for berkley sockets answer
+
+awk '/pattern/ { action }' file
+
+awk '{count[$2]++} END {print count["Ravi"]}' emp.txt
+
+sed 'operation' filename
+sed 's/old/new/' file.txt
+sed 's/Linux/Unix/' file.txt
+sed '2d' file.txt Deletes 2nd line.
+sed -n '2p' file.txt print only requested line
+sed 's/apple/mango/g' file.txt (Used to replace all occurrences in a line.)
+
+grep [options] pattern filename
+grep Ravi emp.txt Prints lines containing Ravi.
+grep -i linux file.txt Ignore Uppercase and Lowercase
+grep -n Ravi emp.txt Display Line Numbers
+grep -c Ravi emp.txt Count Matching Lines
+grep -v Ravi emp.txt Invert Search
+
+looping in shell scripts
+for variable in list
+do
+   commands
+done
+Ex:
+for i in 1 2 3
+do
+echo $i
+done
+
+switch case in shell scripts
+case variable in
+   pattern1)
+      commands ;;
+   pattern2)
+      commands ;;
+esac
+Ex:
+case $choice in
+1) cat file.txt ;;
+2) df -h ;;
+3) exit ;;
+*) echo "Invalid option" ;;
+esac
+
+shell scripts debugging
+sh -x test.sh shows execution step by step
+
+ln file1.txt hardlink.txt hardlink
+link("file1.txt", "hardlink.txt"); hard in C
+ln -s file1.txt softlink.txt softlink
+symlink("file1.txt", "softlink.txt"); soft in C
+
+int msgget(key, msgflg);returns Queue ID on success
+key → unique key to identify queue
+msgflg → permissions + flags
+msgid = msgget(1, IPC_CREAT | 0666);
+
+int msgsnd(msqid,*msgp,msgsz,msgflg);
+msqid → message queue ID
+msgp → pointer to message structure
+msgsz → message size
+msgflg → control flags
+msgsnd(msgid, &message, sizeof(message.text), 0);
+
+|ssize_t| msgrcv(msqid,*msgp,msgsz,|msgtyp|,msgflg);
+Returns Number of bytes received on success
+msqid → queue ID
+msgp → buffer to store message
+msgsz → size of message
+msgtyp → type of message
+msgflg → options
+msgrcv(msgid, &message, sizeof(message.text), 1, 0);
+
+int msgctl(msqid, cmd, *buf);
+buf → stores queue info.
+msgctl(msgid, IPC_RMID, 0);
+
+struct msgbuf
+{
+    long mtype;
+    char mtext[100];
+};
+
+<sys/stat.h>
+chmod permission filename
+chmod 777 file1.txt
+chmod(filename, permissions);
+chmod("file1.txt", 0777);
+
+#include <unistd.h>
+chown newowner filename
+chown abhi file1.txt
+chown(filename, user_id, group_id);
+chown("file1.txt", 1000, 1000);
+
+lchown
+lchown(path, owner, group);changes the owner of the soft link itself.
+lchown("softlink.txt", ...)
+
+fchown(fd, owner, group);
+fchown() changes owner using that descriptor
+
+fchmod() changes file permissions using a file descriptor.
+fchmod(fd, permissions);
+fchmod(fd, 0777);
+
+signal(signal_name, handler_function);
+#include <signal.h>// for signal handling
+
+kill(pid, signal);
+kill(1234, SIGKILL);
+
+raise(signal);Process sends signal to itself.
+
+Generates SIGALRM signal after specified seconds
+alarm(seconds);
+
+Suspends process until signal arrives.
+pause();
+
+pid_t fork();
+fork() == 0   → currently executing CHILD process
+fork()  > 0   → currently executing PARENT process
+fork()  < 0   → fork creation failed
+
+#include <stdio.h>
+#include <unistd.h>
+
+int main()
+{
+    fork();
+
+    printf("Hello\n");
+
+    return 0;
+}
+Hello
+Hello
+
+Important Points of fork()
+creates child process
+child gets separate memory
+parent and child run independently
+
+pid_t vfork();
+child runs first
+parent waits
+child usually calls exec()
+vfork() → child runs → exec() loads new program
+vfork();
+execl("/bin/ls", "ls", NULL);
+This avoids modifying parent memory.
+
+execl(path, program_name, arguments, NULL);
+parent blocked until child finishes
+
+#include <stdio.h>
+#include <unistd.h>
+
+int main()
+{
+    int x = 10;
+
+    vfork();
+
+    x++;
+
+    printf("%d\n", x);
+
+    return 0;
+}
+```
+
+### Output
+
+11
+11
+
+
+### Why?
+
+Because in `vfork()`:
+
+* parent and child temporarily share same memory
+* child increments `x`
+* parent also sees updated value
+
+So both print `11`.
+
+No new process created.
+
+Only program inside process changes.
+
+exec() family replaces current process image with a new program.
+
+wait(&status)
+| Return Value | Meaning |
+| ------------ | ------- |
+| Child PID    | Success |
+| -1           | Error   |
+waitpid(pid, &status, options);
+
+pid = fork();
+if pid=0 then it is child process, it's pid=0
+int status;
+waitpid(pid, &status, 0);
+
+Parent waits only for specified child PID
+
+| wait()              | waitpid()                |
+| ------------------- | ------------------------ |
+| Waits for any child | Waits for specific child |
+| Simple              | More flexible            |
+| Less control        | More control             |
+
+| Zombie             | Orphan              |
+| ------------------ | ------------------- |
+| Child finished     | Child still running |
+| Parent alive       | Parent dead         |
+| Waiting for wait() | Adopted by init     |
+| Dead process       | Active process      |
+
+Zombie:
+child dead + parent alive
+
+Orphan:
+parent dead + child alive
+
+wait() removes zombie
+init adopts orphan
+
+
+
+
 
 
 

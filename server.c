@@ -15,6 +15,7 @@ int main() {
     strcpy(srv.sun_path, "/tmp/s");// Set the socket file path for the server
     unlink("/tmp/s");// Remove any existing socket file at the specified path
     bind(s, (struct sockaddr*)&srv, sizeof(srv));
+    //**impt**//
     len = sizeof(cli);// Set the length of the client address structure
     recvfrom(s, buf, 2, 0, (struct sockaddr*)&cli, &len);
     printf("Client: %s\n", buf);
